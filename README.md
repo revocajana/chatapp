@@ -1,9 +1,10 @@
 # chatapp
 
-A chatting app.
+A chatting platform
 
 ## Features
 - Authenticatiion (signup, login)
-- View other users
 - Send and Recieve text
 - Recieve notifications
+
+<!-- Jaman anayeweza kuendeleza hiyo README.md basi aongeze vitu hapo -->
