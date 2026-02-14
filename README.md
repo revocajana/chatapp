@@ -1,7 +1,6 @@
 # ChatApp
 
-A simple chat application built with **Flutter** and **Firebase** for learning purposes.
-
+A simple chat application built with **Flutter** and **Firebase**
 ## Overview
 
 ChatApp is a basic chat application designed to learn Flutter development with Firebase backend services.
