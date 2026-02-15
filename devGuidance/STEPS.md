@@ -10,10 +10,16 @@
 ## Phase 2: Firebase Integration
 
 - [x] **2.1** Create Firebase project `we called it 'chatapp'`
-- [ ] **2.2** Add Android/iOS/web apps in Firebase console
-- [ ] **2.3** Download and add `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
-- [ ] **2.4** Add Firebase dependencies to `pubspec.yaml` (firebase_core, firebase_auth, cloud_firestore, firebase_messaging)
-- [ ] **2.5** Initialize Firebase in `main.dart`
+- [x] **2.2** Add Android/iOS/web apps in Firebase console
+- [x] **2.3** Download and add `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
+- [x] **2.4** Add Firebase dependencies to `pubspec.yaml` (firebase_core, firebase_auth, cloud_firestore, firebase_messaging)
+- [x] **2.5** Initialize Firebase in `main.dart`
+
+<!-- HUU SASA NDO MUDA SAHIHI WA KUGWANA BRANCHES KILA MTU APIGE KAZI -->
+<!-- 
+    1. clone this repostory, run 'flutter pub get'
+    2. create you branch (piga kazi kama tutakavyogawana whatsapp)
+ -->
 
 ## Phase 3: Authentication
 
@@ -62,10 +68,10 @@
 
 ## Summary
 
-**Total Steps:** 32  
-**Completed:** 3  
+**Total Steps:** 32 
+**Completed:** 4  
 **Remaining:** 29  
 
 ### Quick Reference
-- Current Phase: 2 (Firebase Integration)
+- Current Phase: 2 (Firebase Integration) on step 2.1
 - Next Priority: Complete Firebase setup, then proceed to Authentication
