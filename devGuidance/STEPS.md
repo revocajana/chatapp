@@ -15,7 +15,7 @@
 - [x] **2.4** Add Firebase dependencies to `pubspec.yaml` (firebase_core, firebase_auth, cloud_firestore, firebase_messaging)
 - [x] **2.5** Initialize Firebase in `main.dart`
 
-<!-- HUU SASA NDO MUDA SAHIHI WA KUGWANA BRANCHES KILA MTU APIGE KAZI -->
+<!-- HUU SASA NDO MUDA SAHIHI WA KUGAWANA BRANCHES KILA MTU APIGE KAZI -->
 <!-- 
     1. clone this repostory, run 'flutter pub get'
     2. create you branch (piga kazi kama tutakavyogawana whatsapp)
@@ -69,9 +69,9 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 4  
-**Remaining:** 29  
+**Completed:** 8  
+**Remaining:** 24  
 
 ### Quick Reference
-- Current Phase: 2 (Firebase Integration) on step 2.1
+- Current Phase: 3 (Firebase Integration) on step 3.1
 - Next Priority: Complete Firebase setup, then proceed to Authentication
