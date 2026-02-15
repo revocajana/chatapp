@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
+import '../../services/user_service.dart';
 
 class LoginScreen extends StatefulWidget {
 	const LoginScreen({super.key});
@@ -31,6 +32,16 @@ class _LoginScreenState extends State<LoginScreen> {
 				password: _passwordController.text.trim(),
 			);
 			if (user != null) {
+				// Ensure user exists in Firestore before showing users list
+				try {
+					await userService.createOrUpdateUser(
+						uid: user.uid,
+						email: user.email ?? _emailController.text.trim(),
+						displayName: user.displayName,
+					);
+				} catch (_) {
+					// ignore errors here; still navigate to home
+				}
 				if (!mounted) return;
 				Navigator.pushReplacementNamed(context, '/home');
 			}
