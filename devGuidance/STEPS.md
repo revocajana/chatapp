@@ -65,9 +65,9 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 15 
-**Remaining:** 17 
+**Completed:** 13 
+**Remaining:** 19 
 
 ### Quick Reference
-- Current Phase: 5 (Chat functionality) but phase 4 is not 100% complted
-
+- Current Phase: 5 (Chat Functionality)
+- Next Priority: Phase 5.1 — Design chat model and Firestore chat/message collections
