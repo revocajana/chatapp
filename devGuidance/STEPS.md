@@ -15,17 +15,13 @@
 - [x] **2.4** Add Firebase dependencies to `pubspec.yaml` (firebase_core, firebase_auth, cloud_firestore, firebase_messaging)
 - [x] **2.5** Initialize Firebase in `main.dart`
 
-<!-- HUU SASA NDO MUDA SAHIHI WA KUGAWANA BRANCHES KILA MTU APIGE KAZI -->
-<!-- 
-    1. clone this repostory, run 'flutter pub get'
-    2. create you branch (piga kazi kama tutakavyogawana whatsapp)
- -->
 
 ## Phase 3: Authentication
 
-- [ ] **3.1** Implement sign up and login screens
-- [ ] **3.2** Integrate Firebase Authentication (email/password)
-- [ ] **3.3** Handle authentication state and user sessions
+- [x] **3.1** Implement sign up and login screens
+- [x] **3.2** Integrate Firebase Authentication (username/email/password) 
+                <!-- people can now signup and login -->
+- [] **3.3** Handle authentication state and user sessions
 
 ## Phase 4: User Management
 
@@ -69,9 +65,9 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 8  
-**Remaining:** 24  
+**Completed:** 10 
+**Remaining:** 22 
 
 ### Quick Reference
-- Current Phase: 3 (Firebase Integration) on step 3.1
-- Next Priority: Complete Firebase setup, then proceed to Authentication
+- Current Phase: 3 (Authentication) on step 3.3
+- Next Priority: Handle authentication state and user sessions
