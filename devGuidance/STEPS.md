@@ -25,8 +25,8 @@
 
 ## Phase 4: User Management
 
-- [ ] **4.1** Create user model and Firestore user collection
-- [ ] **4.2** Display list of users (excluding current user)
+- [x] **4.1** Create user model and Firestore user collection
+- [x] **4.2** Display list of users (excluding current user)
 
 ## Phase 5: Chat Functionality
 - [ ] **5.1** Design chat model and Firestore chat/message collections
@@ -65,9 +65,9 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 11 
-**Remaining:** 21 
+**Completed:** 13 
+**Remaining:** 19 
 
 ### Quick Reference
-- Current Phase: 4 (User Management)
-- Next Priority: Phase 4 — implement user model and list users
+- Current Phase: 5 (Chat Functionality)
+- Next Priority: Phase 5.1 — Design chat model and Firestore chat/message collections

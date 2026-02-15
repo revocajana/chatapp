@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'user_service.dart';
 
 class AuthService {
 	final FirebaseAuth _auth = FirebaseAuth.instance;
+	final UserService _userService = UserService();
 
 	Future<User?> signUp({required String email, required String password, String? username}) async {
 		try {
@@ -18,6 +20,17 @@ class AuthService {
 				await user.updateDisplayName(username);
 				await user.reload();
 				print('Display name updated');
+				
+				// Create Firestore document for the user
+				print('Creating Firestore user document');
+				await _userService.createOrUpdateUser(
+					uid: user.uid,
+					email: email,
+					displayName: username,
+					photoUrl: user.photoURL,
+				);
+				print('Firestore user document created successfully');
+				
 				return _auth.currentUser;
 			}
 			return user;
