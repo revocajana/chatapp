@@ -21,7 +21,7 @@
 - [x] **3.1** Implement sign up and login screens
 - [x] **3.2** Integrate Firebase Authentication (username/email/password) 
                 <!-- people can now signup and login -->
-- [] **3.3** Handle authentication state and user sessions
+ - [x] **3.3** Handle authentication state and user sessions
 
 ## Phase 4: User Management
 
@@ -65,9 +65,9 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 10 
-**Remaining:** 22 
+**Completed:** 11 
+**Remaining:** 21 
 
 ### Quick Reference
-- Current Phase: 3 (Authentication) on step 3.3
-- Next Priority: Handle authentication state and user sessions
+- Current Phase: 4 (User Management)
+- Next Priority: Phase 4 — implement user model and list users
