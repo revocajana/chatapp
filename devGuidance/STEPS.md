@@ -32,7 +32,7 @@
 - [x] **5.1** Design chat model and Firestore chat/message collections
 - [x] **5.2** Implement real-time messaging (send/receive messages) 
         <!-- Hakikisha una change rules kwenye firebase console for permisions -->
-- [ ] **5.3** Display chat history and update UI in real time
+- [x] **5.3** Display chat history and update UI in real time
 
 ## Phase 6: Push Notifications
 
@@ -66,10 +66,10 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 15 
-**Remaining:** 17 
+**Completed:** 16 
+**Remaining:** 16 
 
 ### Quick Reference
-- Current Phase: 5 (Chat Functionality)
-- Next Priority: Phase 5.3 — Display chat history and update UI in real time
+- Current Phase: 6 (Push Notifications)
+- Next Priority: Phase 6.1 — Integrate Firebase Cloud Messaging (FCM)
 
