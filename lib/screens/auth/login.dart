@@ -15,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
 	final TextEditingController _emailController = TextEditingController();
 	final TextEditingController _passwordController = TextEditingController();
 	bool _loading = false;
+	bool _showPassword = false;
 
 	/// Validates email format using regex pattern
 	bool _isValidEmail(String email) {
@@ -88,8 +89,18 @@ class _LoginScreenState extends State<LoginScreen> {
 							const SizedBox(height: 12),
 							TextFormField(
 								controller: _passwordController,
-								decoration: const InputDecoration(labelText: 'Password'),
-								obscureText: true,
+								decoration: InputDecoration(
+									labelText: 'Password',
+									suffixIcon: IconButton(
+										icon: Icon(
+											_showPassword ? Icons.visibility : Icons.visibility_off,
+										),
+										onPressed: () {
+											setState(() => _showPassword = !_showPassword);
+										},
+									),
+								),
+								obscureText: !_showPassword,
 								validator: (v) => (v == null || v.length < 6) ? 'Password min 6 chars' : null,
 							),
 							const SizedBox(height: 20),
