@@ -5,6 +5,34 @@ class AuthService {
 	final FirebaseAuth _auth = FirebaseAuth.instance;
 	final UserService _userService = UserService();
 
+	/// Convert Firebase error codes to user-friendly messages
+	String _getErrorMessage(FirebaseAuthException e) {
+		switch (e.code) {
+			case 'user-not-found':
+				return 'No account found with this email. Please sign up first.';
+			case 'wrong-password':
+				return 'Incorrect password. Please try again.';
+			case 'invalid-email':
+				return 'Invalid email address. Please check and try again.';
+			case 'user-disabled':
+				return 'This account has been disabled. Contact support for help.';
+			case 'too-many-requests':
+				return 'Too many login attempts. Please try again later.';
+			case 'operation-not-allowed':
+				return 'Email/password sign in is not enabled. Please contact support.';
+			case 'invalid-credential':
+				return 'Invalid email or password. Please try again.';
+			case 'email-already-in-use':
+				return 'An account with this email already exists.';
+			case 'weak-password':
+				return 'Password is too weak. Use at least 6 characters.';
+			case 'network-request-failed':
+				return 'Network error. Please check your internet connection.';
+			default:
+				return 'An error occurred. Please try again.';
+		}
+	}
+
 	Future<User?> signUp({required String email, required String password, String? username}) async {
 		try {
 			print('Attempting signup with email: $email, username: $username');
@@ -34,18 +62,25 @@ class AuthService {
 				return _auth.currentUser;
 			}
 			return user;
+		} on FirebaseAuthException catch (e) {
+			print('SignUp error: $e');
+			throw Exception(_getErrorMessage(e));
 		} catch (e) {
 			print('SignUp error: $e');
-			rethrow;
+			throw Exception('An unexpected error occurred. Please try again.');
 		}
 	}
 
 	Future<User?> signIn({required String email, required String password}) async {
-		final credential = await _auth.signInWithEmailAndPassword(
-			email: email,
-			password: password,
-		);
-		return credential.user;
+		try {
+			final credential = await _auth.signInWithEmailAndPassword(
+				email: email,
+				password: password,
+			);
+			return credential.user;
+		} on FirebaseAuthException catch (e) {
+			throw Exception(_getErrorMessage(e));
+		}
 	}
 
 	Future<void> signOut() async {
