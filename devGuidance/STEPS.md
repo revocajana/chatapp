@@ -21,7 +21,7 @@
 - [x] **3.1** Implement sign up and login screens
 - [x] **3.2** Integrate Firebase Authentication (username/email/password) 
                 <!-- people can now signup and login -->
- - [x] **3.3** Handle authentication state and user sessions
+- [x] **3.3** Handle authentication state and user sessions
 
 ## Phase 4: User Management
 
@@ -30,7 +30,8 @@
 
 ## Phase 5: Chat Functionality
 - [x] **5.1** Design chat model and Firestore chat/message collections
-- [ ] **5.2** Implement real-time messaging (send/receive messages)
+- [x] **5.2** Implement real-time messaging (send/receive messages) 
+        <!-- Hakikisha una change rules kwenye firebase console for permisions -->
 - [ ] **5.3** Display chat history and update UI in real time
 
 ## Phase 6: Push Notifications
@@ -65,9 +66,10 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 13 
-**Remaining:** 19 
+**Completed:** 15 
+**Remaining:** 17 
 
 ### Quick Reference
 - Current Phase: 5 (Chat Functionality)
-- Next Priority: Phase 5.1 — Design chat model and Firestore chat/message collections
+- Next Priority: Phase 5.3 — Display chat history and update UI in real time
+
