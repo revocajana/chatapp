@@ -3,10 +3,10 @@ import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 
 class LoginScreen extends StatefulWidget {
-	const LoginScreen({super.key});
+  const LoginScreen({super.key});
 
-	@override
-	State<LoginScreen> createState() => _LoginScreenState();
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -25,12 +25,9 @@ class _LoginScreenState extends State<LoginScreen> {
 		return emailRegex.hasMatch(email);
 	}
 
-	@override
-	void dispose() {
-		_emailController.dispose();
-		_passwordController.dispose();
-		super.dispose();
-	}
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _loading = false;
 
 	Future<void> _submit() async {
 		if (!_formKey.currentState!.validate()) return;
@@ -325,3 +322,50 @@ class _LoginScreenState extends State<LoginScreen> {
 	}
 }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login page')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Enter email' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (v) => (v == null || v.length < 6)
+                    ? 'Password min 6 characters'
+                    : null,
+              ),
+              const SizedBox(height: 20),
+              _loading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _submit,
+                      child: const Text('Login'),
+                    ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/signup'),
+                child: const Text("Don't have an account? Sign up"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
