@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'screens/auth/login.dart';
 import 'screens/auth/signup.dart';
+import 'screens/home/users.dart';
 import 'widgets/logout_button.dart';
 
 void main() async {
@@ -47,9 +48,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: const [LogoutButton()],
       ),
-      body: const Center(
-        child: Text('Tumeshaunganisha Firebase na flutter project yetu!'),
-      ),
+      body: const UsersScreen(), // Show users list on home screen
     );
   }
 }

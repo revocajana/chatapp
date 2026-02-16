@@ -10,10 +10,45 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
 	final _formKey = GlobalKey<FormState>();
- 	final TextEditingController _usernameController = TextEditingController();
+	final TextEditingController _usernameController = TextEditingController();
 	final TextEditingController _emailController = TextEditingController();
 	final TextEditingController _passwordController = TextEditingController();
 	bool _loading = false;
+	bool _showPassword = false;
+
+	/// Validates email format using regex pattern
+	bool _isValidEmail(String email) {
+		final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\$');
+		return emailRegex.hasMatch(email);
+	}
+
+	/// Validates password strength:
+	/// - Minimum 8 characters
+	/// - At least 1 uppercase letter
+	/// - At least 1 lowercase letter
+	/// - At least 1 digit
+	/// - At least 1 special character
+	String? _validatePassword(String? password) {
+		if (password == null || password.isEmpty) {
+			return 'Password is required';
+		}
+		if (password.length < 8) {
+			return 'Password must be at least 8 characters';
+		}
+		if (!RegExp(r'[A-Z]').hasMatch(password)) {
+			return 'Password must contain at least 1 uppercase letter';
+		}
+		if (!RegExp(r'[a-z]').hasMatch(password)) {
+			return 'Password must contain at least 1 lowercase letter';
+		}
+		if (!RegExp(r'[0-9]').hasMatch(password)) {
+			return 'Password must contain at least 1 digit';
+		}
+		if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) {
+			return 'Password must contain at least 1 special character (!@#\$%^&*)';
+		}
+		return null;
+	}
 
 	@override
 	void dispose() {
@@ -38,9 +73,14 @@ class _SignupScreenState extends State<SignupScreen> {
 			}
 		} on Exception catch (e) {
 			if (mounted) {
-				print('Signup error: $e');
+				String errorMessage = e.toString();
+				// Extract the message from "Exception: message" format
+				if (errorMessage.startsWith('Exception: ')) {
+					errorMessage = errorMessage.replaceFirst('Exception: ', '');
+				}
 				ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-					content: Text('Error: ${e.toString()}'),
+					content: Text(errorMessage),
+					backgroundColor: Colors.red,
 					duration: const Duration(seconds: 5),
 				));
 			}
@@ -70,14 +110,28 @@ class _SignupScreenState extends State<SignupScreen> {
 								controller: _emailController,
 								decoration: const InputDecoration(labelText: 'Email'),
 								keyboardType: TextInputType.emailAddress,
-								validator: (v) => (v == null || v.isEmpty) ? 'Enter email' : null,
+								validator: (v) {
+									if (v == null || v.isEmpty) return 'Enter email';
+									if (!_isValidEmail(v.trim())) return 'Enter a valid email (e.g., user@example.com)';
+									return null;
+								},
 							),
 							const SizedBox(height: 12),
 							TextFormField(
 								controller: _passwordController,
-								decoration: const InputDecoration(labelText: 'Password'),
-								obscureText: true,
-								validator: (v) => (v == null || v.length < 6) ? 'Password min 6 chars' : null,
+							decoration: InputDecoration(
+								labelText: 'Password',
+								suffixIcon: IconButton(
+									icon: Icon(
+										_showPassword ? Icons.visibility : Icons.visibility_off,
+									),
+									onPressed: () {
+										setState(() => _showPassword = !_showPassword);
+									},
+								),
+							),
+							obscureText: !_showPassword,
+							validator: _validatePassword,
 							),
 							const SizedBox(height: 20),
 							_loading
