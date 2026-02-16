@@ -40,26 +40,21 @@ class ChatService {
       return Stream.value([]);
     }
 
-    // Query all messages from the messages collection
+    // Query all messages and filter client-side for real-time updates
     return _firestore
         .collection('messages')
         .snapshots()
         .map((snapshot) {
-          final allMessages = snapshot.docs
+          final messages = snapshot.docs
               .map((doc) => MessageModel.fromFirestore(doc))
-              .toList();
-
-          // Filter to only messages between these two users (in both directions)
-          final filteredMessages = allMessages
               .where((msg) =>
                   (msg.senderId == currentUserId && msg.recipientId == otherUserId) ||
                   (msg.senderId == otherUserId && msg.recipientId == currentUserId))
               .toList();
 
           // Sort by timestamp ascending (oldest first)
-          filteredMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-          return filteredMessages;
+          messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+          return messages;
         });
   }
 

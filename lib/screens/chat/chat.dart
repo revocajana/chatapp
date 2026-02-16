@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import '../../models/message_model.dart';
 import '../../services/chat_service.dart';
 
@@ -61,6 +62,14 @@ class _ChatScreenState extends State<ChatScreen> {
 		}
 	}
 
+	void _markMessagesAsRead(List<MessageModel> messages) {
+		for (var message in messages) {
+			if (message.recipientId == _auth.currentUser?.uid && !message.read) {
+				_chatService.markAsRead(message.id);
+			}
+		}
+	}
+
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
@@ -91,6 +100,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
 								final messages = snapshot.data ?? [];
 
+								// Mark messages as read when they appear
+								if (messages.isNotEmpty) {
+									_markMessagesAsRead(messages);
+								}
+
 								if (messages.isEmpty) {
 									return const Center(
 										child: Text('No messages yet. Start the conversation!'),
@@ -111,40 +125,79 @@ class _ChatScreenState extends State<ChatScreen> {
 								return ListView.builder(
 									controller: _scrollController,
 									padding: const EdgeInsets.all(12.0),
-									itemCount: messages.length,
+									itemCount: _buildCombinedMessageList(messages).length,
 									itemBuilder: (context, index) {
-										final message = messages[index];
+										final item = _buildCombinedMessageList(messages)[index];
+										
+										if (item is String) {
+											// It's a date separator string
+											return _buildDateSeparator(DateTime.parse(item));
+										}
+										
+										// It's a MessageModel
+										final message = item as MessageModel;
 										final isCurrentUser = message.senderId == _auth.currentUser?.uid;
 
-										return Align(
-											alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-											child: Container(
-												margin: const EdgeInsets.symmetric(vertical: 4),
-												padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-												decoration: BoxDecoration(
-													color: isCurrentUser
-														? Theme.of(context).colorScheme.primary
-														: Colors.grey[300],
-													borderRadius: BorderRadius.circular(12),
-												),
-												child: Column(
-													crossAxisAlignment: CrossAxisAlignment.start,
-													children: [
-														Text(
-															message.text,
-															style: TextStyle(
-																color: isCurrentUser ? Colors.white : Colors.black,
+										return Padding(
+											padding: const EdgeInsets.symmetric(vertical: 4.0),
+											child: Align(
+												alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+												child: Container(
+													constraints: BoxConstraints(
+														maxWidth: MediaQuery.of(context).size.width * 0.75,
+													),
+													margin: const EdgeInsets.symmetric(vertical: 4),
+													padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+													decoration: BoxDecoration(
+														color: isCurrentUser
+															? Theme.of(context).colorScheme.primary
+															: Colors.grey[300],
+														borderRadius: BorderRadius.only(
+															topLeft: const Radius.circular(18),
+															topRight: const Radius.circular(18),
+															bottomLeft: Radius.circular(isCurrentUser ? 18 : 4),
+															bottomRight: Radius.circular(isCurrentUser ? 4 : 18),
 														),
-														),
-														const SizedBox(height: 4),
-														Text(
-															_formatTime(message.timestamp),
-															style: TextStyle(
-																fontSize: 12,
-																color: isCurrentUser ? Colors.white70 : Colors.grey[600],
+														boxShadow: [
+															BoxShadow(
+																color: Colors.black.withOpacity(0.1),
+																blurRadius: 2,
 															),
-														),
-													],
+														],
+													),
+													child: Column(
+														crossAxisAlignment: CrossAxisAlignment.start,
+														children: [
+															Text(
+																message.text,
+																style: TextStyle(
+																	color: isCurrentUser ? Colors.white : Colors.black87,
+																	fontSize: 15,
+																),
+															),
+															const SizedBox(height: 6),
+															Row(
+																mainAxisSize: MainAxisSize.min,
+																children: [
+																	Text(
+																		_formatTime(message.timestamp),
+																		style: TextStyle(
+																			fontSize: 12,
+																			color: isCurrentUser ? Colors.white70 : Colors.grey[600],
+																		),
+																	),
+																	if (isCurrentUser) ...[
+																		const SizedBox(width: 4),
+																		Icon(
+																			message.read ? Icons.done_all : Icons.done,
+																			size: 14,
+																			color: message.read ? Colors.blue[300] : Colors.white70,
+																		),
+																	],
+																],
+															),
+														],
+													),
 												),
 											),
 										);
@@ -194,5 +247,68 @@ class _ChatScreenState extends State<ChatScreen> {
 		final minute = dateTime.minute.toString().padLeft(2, '0');
 		return '$hour:$minute';
 	}
-}
 
+	/// Build a combined list of messages and date separators
+	List<dynamic> _buildCombinedMessageList(List<MessageModel> messages) {
+		if (messages.isEmpty) return [];
+
+		final combined = <dynamic>[];
+		DateTime? lastDate;
+
+		for (final message in messages) {
+			final messageDate = DateTime(
+				message.timestamp.year,
+				message.timestamp.month,
+				message.timestamp.day,
+			);
+
+			// Add date separator if date changed
+			if (lastDate == null || lastDate != messageDate) {
+				combined.add(messageDate.toString()); // Store date as string for separator
+				lastDate = messageDate;
+			}
+
+			combined.add(message);
+		}
+
+		return combined;
+	}
+
+	Widget _buildDateSeparator(DateTime dateTime) {
+		final today = DateTime.now();
+		final yesterday = today.subtract(const Duration(days: 1));
+		final dateOnly = DateTime(dateTime.year, dateTime.month, dateTime.day);
+		final todayOnly = DateTime(today.year, today.month, today.day);
+		final yesterdayOnly = DateTime(yesterday.year, yesterday.month, yesterday.day);
+
+		String dateLabel;
+		if (dateOnly == todayOnly) {
+			dateLabel = 'Today';
+		} else if (dateOnly == yesterdayOnly) {
+			dateLabel = 'Yesterday';
+		} else {
+			dateLabel = DateFormat('MMM d, yyyy').format(dateTime);
+		}
+
+		return Center(
+			child: Padding(
+				padding: const EdgeInsets.symmetric(vertical: 12.0),
+				child: Container(
+					padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+					decoration: BoxDecoration(
+						color: Colors.grey[300],
+						borderRadius: BorderRadius.circular(12),
+					),
+					child: Text(
+						dateLabel,
+						style: TextStyle(
+							color: Colors.grey[700],
+							fontSize: 12,
+							fontWeight: FontWeight.w500,
+						),
+					),
+				),
+			),
+		);
+	}
+}
