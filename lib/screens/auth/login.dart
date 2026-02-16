@@ -16,6 +16,14 @@ class _LoginScreenState extends State<LoginScreen> {
 	final TextEditingController _passwordController = TextEditingController();
 	bool _loading = false;
 
+	/// Validates email format using regex pattern
+	bool _isValidEmail(String email) {
+		final emailRegex = RegExp(
+			r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+		);
+		return emailRegex.hasMatch(email);
+	}
+
 	@override
 	void dispose() {
 		_emailController.dispose();
@@ -67,7 +75,15 @@ class _LoginScreenState extends State<LoginScreen> {
 								controller: _emailController,
 								decoration: const InputDecoration(labelText: 'Email'),
 								keyboardType: TextInputType.emailAddress,
-								validator: (v) => (v == null || v.isEmpty) ? 'Enter email' : null,
+								validator: (v) {
+									if (v == null || v.isEmpty) {
+										return 'Email is required';
+									}
+									if (!_isValidEmail(v.trim())) {
+										return 'Enter a valid email (e.g., user@example.com)';
+									}
+									return null;
+								},
 							),
 							const SizedBox(height: 12),
 							TextFormField(
