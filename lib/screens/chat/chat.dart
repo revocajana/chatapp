@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // run 'flutter pub add intl' to add this package and then 'flutter pub get' to install it
 import '../../models/message_model.dart';
 import '../../services/chat_service.dart';
 
