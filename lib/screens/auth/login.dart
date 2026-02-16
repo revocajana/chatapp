@@ -55,7 +55,19 @@ class _LoginScreenState extends State<LoginScreen> {
 				Navigator.pushReplacementNamed(context, '/home');
 			}
 		} on Exception catch (e) {
-			ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+			if (!mounted) return;
+			String errorMessage = e.toString();
+			// Extract the message from "Exception: message" format
+			if (errorMessage.startsWith('Exception: ')) {
+				errorMessage = errorMessage.replaceFirst('Exception: ', '');
+			}
+			ScaffoldMessenger.of(context).showSnackBar(
+				SnackBar(
+					content: Text(errorMessage),
+					backgroundColor: Colors.red,
+					duration: const Duration(seconds: 4),
+				),
+			);
 		} finally {
 			if (mounted) setState(() => _loading = false);
 		}
