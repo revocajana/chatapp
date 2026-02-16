@@ -52,7 +52,7 @@ class _SignupScreenState extends State<SignupScreen> {
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
-			appBar: AppBar(title: const Text('Sign Up')),
+			appBar: AppBar(title: const Text('Registration Form')),
 			body: Padding(
 				padding: const EdgeInsets.all(16.0),
 				child: Form(
@@ -89,7 +89,7 @@ class _SignupScreenState extends State<SignupScreen> {
 							const SizedBox(height: 12),
 							TextButton(
 								onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-								child: const Text('Already have an account? Log in'),
+								child: const Text('I have an account? Log in'),
 							),
 						],
 					),
