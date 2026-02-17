@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
+import '../../services/notification_service.dart'; // for notification initialization on signup
 
 class SignupScreen extends StatefulWidget {
 	const SignupScreen({super.key});
@@ -89,6 +90,12 @@ class _SignupScreenState extends State<SignupScreen> {
 				username: _usernameController.text.trim(),
 			);
 			if (user != null) {
+				// Initialize notifications and request permissions
+				try {
+					await notificationService.initializeNotifications(user.uid);
+				} catch (_) {
+					// ignore notification errors; still navigate to home
+				}
 				if (!mounted) return;
 				Navigator.pushReplacementNamed(context, '/home');
 			}

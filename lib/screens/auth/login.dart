@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import '../../services/notification_service.dart'; // for notification initialization on login
 
 class LoginScreen extends StatefulWidget {
 	const LoginScreen({super.key});
@@ -50,6 +51,12 @@ class _LoginScreenState extends State<LoginScreen> {
 					);
 				} catch (_) {
 					// ignore errors here; still navigate to home
+				}
+				// Initialize notifications and request permissions
+				try {
+					await notificationService.initializeNotifications(user.uid);
+				} catch (_) {
+					// ignore notification errors; still navigate to home
 				}
 				if (!mounted) return;
 				Navigator.pushReplacementNamed(context, '/home');

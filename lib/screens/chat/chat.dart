@@ -23,6 +23,8 @@ class _ChatScreenState extends State<ChatScreen> {
 	final ChatService _chatService = chatService;
 	final FirebaseAuth _auth = FirebaseAuth.instance;
 	late ScrollController _scrollController;
+	int _previousMessageCount = 0;
+	bool _isFirstLoad = true;
 
 	@override
 	void initState() {
@@ -99,6 +101,28 @@ class _ChatScreenState extends State<ChatScreen> {
 								}
 
 								final messages = snapshot.data ?? [];
+
+								// Show notification when new message arrives from the other user
+								if (!_isFirstLoad && messages.length > _previousMessageCount) {
+									final newMessages = messages.skip(_previousMessageCount).toList();
+									for (var msg in newMessages) {
+										if (msg.senderId == widget.recipientId && msg.senderId != _auth.currentUser?.uid) {
+											// Schedule snack bar to be shown after the current build frame.
+											WidgetsBinding.instance.addPostFrameCallback((_) {
+												ScaffoldMessenger.of(context).showSnackBar(
+													SnackBar(
+														content: Text('New message from ${widget.recipientName}: ${msg.text}'),
+														duration: const Duration(seconds: 3),
+														backgroundColor: Theme.of(context).colorScheme.primary,
+													),
+												);
+											});
+										}
+									}
+								}
+
+								_previousMessageCount = messages.length;
+								_isFirstLoad = false;
 
 								// Mark messages as read when they appear
 								if (messages.isNotEmpty) {
