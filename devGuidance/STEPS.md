@@ -36,9 +36,11 @@
 
 ## Phase 6: Push Notifications
 
-- [ ] **6.1** Integrate Firebase Cloud Messaging (FCM)
-- [ ] **6.2** Request notification permissions and handle tokens
-- [ ] **6.3** Show notifications for new messages
+- [x] **6.1** Integrate Firebase Cloud Messaging (FCM)
+- [x] **6.2** Request notification permissions and handle tokens
+- [x] **6.3** Show notifications for new messages
+<!-- hii mmekamilisha lakini hamku-update -->
+
 
 ## Phase 7: UI/UX Improvements
 
