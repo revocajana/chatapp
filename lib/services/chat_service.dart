@@ -58,6 +58,28 @@ class ChatService {
         });
   }
 
+  /// Stream the last message (most recent) between current user and another user
+  Stream<MessageModel?> lastMessageStream(String otherUserId) {
+    final currentUserId = _auth.currentUser?.uid;
+    if (currentUserId == null) {
+      return Stream.value(null);
+    }
+
+    return _firestore.collection('messages').snapshots().map((snapshot) {
+      final messages = snapshot.docs
+          .map((doc) => MessageModel.fromFirestore(doc))
+          .where((msg) =>
+              (msg.senderId == currentUserId && msg.recipientId == otherUserId) ||
+              (msg.senderId == otherUserId && msg.recipientId == currentUserId))
+          .toList();
+
+      if (messages.isEmpty) return null;
+
+      messages.sort((a, b) => b.timestamp.compareTo(a.timestamp)); // newest first
+      return messages.first;
+    });
+  }
+
   /// Mark messages as read
   Future<void> markAsRead(String messageId) async {
     try {

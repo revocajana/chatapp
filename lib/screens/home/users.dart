@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/user_model.dart';
+import '../../models/message_model.dart';
 import '../../services/user_service.dart';
+import '../../services/chat_service.dart';
 import '../chat/chat.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -78,7 +80,30 @@ class _UsersScreenState extends State<UsersScreen> {
 						return ListTile(
 							leading: CircleAvatar(child: Text((user.displayName ?? user.email).substring(0,1).toUpperCase())),
 							title: Text(user.displayName ?? 'User'),
-							subtitle: Text(user.email),
+							subtitle: StreamBuilder<MessageModel?>(
+								stream: chatService.lastMessageStream(user.uid),
+								builder: (context, snap) {
+									if (snap.connectionState == ConnectionState.waiting) {
+										return const Text('Loading...');
+									}
+									if (snap.hasError) {
+										return Text('Error: ${snap.error}');
+									}
+
+									final last = snap.data;
+									if (last == null) {
+										return const Text('No messages yet');
+									}
+
+									// Show a single-line preview of the last message
+									final preview = last.text.replaceAll('\n', ' ');
+									return Text(
+										preview.length > 60 ? '${preview.substring(0, 57)}...' : preview,
+										maxLines: 1,
+										overflow: TextOverflow.ellipsis,
+									);
+								},
+							),
 							onTap: () {
 								Navigator.push(
 									context,
