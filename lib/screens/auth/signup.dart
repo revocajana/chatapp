@@ -234,10 +234,12 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty)
+                              if (v == null || v.trim().isEmpty) {
                                 return 'Enter username';
-                              if (v.trim().length < 3)
+                              }
+                              if (v.trim().length < 3) {
                                 return 'Username must be at least 3 characters';
+                              }
                               return null;
                             },
                             onFieldSubmitted: (_) => FocusScope.of(
@@ -276,10 +278,12 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty)
+                              if (v == null || v.trim().isEmpty) {
                                 return 'Enter email';
-                              if (!_isValidEmail(v.trim()))
+                              }
+                              if (!_isValidEmail(v.trim())) {
                                 return 'Enter a valid email (e.g., user@example.com)';
+                              }
                               return null;
                             },
                             onFieldSubmitted: (_) => FocusScope.of(
@@ -380,10 +384,12 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             obscureText: !_showPassword,
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty)
+                              if (v == null || v.trim().isEmpty) {
                                 return 'Confirm password is required';
-                              if (v != _passwordController.text)
+                              }
+                              if (v != _passwordController.text) {
                                 return 'Passwords do not match';
+                              }
                               return null;
                             },
                             onFieldSubmitted: (_) => _submit(),
