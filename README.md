@@ -43,9 +43,31 @@ flutter run
 ```
 lib/
 ├── main.dart
+├── models/
+|   ├── chat_model.dart
+|   ├── message_model.dart  
+|   └── user_model.dart
 ├── screens/
+|   ├── auth/
+|   |   ├── login.dart
+|   |   └── signup.dart
+|   |
+|   ├── chat/
+|   |    └── chat.dart
+|   ├── home/
+|   |    └── users.dart   
+|   └──splash.dart
 ├── services/
-└── models/
+|   ├── auth_service.dart
+|   ├── chat_service.dart 
+|   ├── user_service.dart
+|   └── notification_service.dart
+├── theme/
+|   ├── app_colors.dart
+└── widgets/
+|    └── logout_button.dart
+|
+└── firebase_options.dart
 ```
 
 ## Learning Notes

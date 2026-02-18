@@ -7,12 +7,11 @@ import 'screens/auth/signup.dart';
 import 'screens/home/users.dart';
 import 'screens/splash.dart';
 import 'widgets/logout_button.dart';
+import 'theme/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ChatApp());
 }
 
@@ -25,7 +24,7 @@ class ChatApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'chatapp.group7.bit',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 9, 41, 68)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.seedColor),
         useMaterial3: true,
       ),
       home: const SplashScreen(),
