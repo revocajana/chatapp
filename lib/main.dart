@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'screens/auth/login.dart';
 import 'screens/auth/signup.dart';
 import 'screens/home/users.dart';
+import 'screens/splash.dart';
 import 'widgets/logout_button.dart';
 import 'theme/app_colors.dart';
 
@@ -26,8 +27,9 @@ class ChatApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.seedColor),
         useMaterial3: true,
       ),
-      home: const AuthStateHandler(),
+      home: const SplashScreen(),
       routes: {
+        '/auth': (context) => const AuthStateHandler(),
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/home': (context) => const HomeScreen(),
