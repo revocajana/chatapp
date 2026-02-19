@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('chatapp'),
+        title: const Text('Chatapp'),
         backgroundColor: primaryColor,
         elevation: 0,
       ),
