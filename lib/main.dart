@@ -46,7 +46,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ChatApp'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: AppColors.primary(context),
         actions: const [LogoutButton()],
       ),
       body: const UsersScreen(), // Show users list on home screen
