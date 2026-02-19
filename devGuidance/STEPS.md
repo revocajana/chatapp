@@ -39,14 +39,14 @@
 - [x] **6.1** Integrate Firebase Cloud Messaging (FCM)
 - [x] **6.2** Request notification permissions and handle tokens
 - [x] **6.3** Show notifications for new messages
-<!-- hii mmekamilisha lakini hamku-update -->
+<!-- FCM fully integrated: tokens are requested, saved to Firestore, and refreshed automatically -->
 
 
 ## Phase 7: UI/UX Improvements
 
-- [ ] **7.1** Add splash screen and loading indicators
-- [ ] **7.2** Polish chat UI (bubbles, timestamps, avatars)
-- [ ] **7.3** Add error handling and validation
+- [x] **7.1** Add splash screen and loading indicators
+- [x] **7.2** Polish chat UI (bubbles, timestamps, avatars)
+- [x] **7.3** Add error handling and validation
 
 ## Phase 8: Testing & Debugging
 
@@ -68,10 +68,10 @@
 ## Summary
 
 **Total Steps:** 32 
-**Completed:** 16 
-**Remaining:** 16 
+**Completed:** 23 
+**Remaining:** 9 
 
 ### Quick Reference
-- Current Phase: 6 (Push Notifications)
-- Next Priority: Phase 6.1 — Integrate Firebase Cloud Messaging (FCM)
+- Current Phase: 7 (UI/UX Improvements) — **COMPLETE**
+- Next Priority: Phase 8 — Testing & Debugging
 
