@@ -81,11 +81,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.recipientName),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: AppColors.primary(context),
         centerTitle: false,
-        elevation: 2,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.primary(context)),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
