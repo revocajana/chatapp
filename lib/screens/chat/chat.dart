@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // run 'flutter pub add intl' to add this package and then 'flutter pub get' to install it
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/message_model.dart';
 import '../../services/chat_service.dart';
 
@@ -24,6 +23,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = chatService;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late ScrollController _scrollController;
+
   int _previousMessageCount = 0;
   bool _isFirstLoad = true;
 
@@ -40,7 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  void _sendMessage() async {
+  Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
@@ -50,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
         recipientId: widget.recipientId,
         text: text,
       );
-      // Scroll to bottom after sending
+
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -59,17 +59,18 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error sending message: $e'),
-          backgroundColor: AppColors.danger,
+          backgroundColor: Colors.red,
         ),
       );
     }
   }
 
   void _markMessagesAsRead(List<MessageModel> messages) {
-    for (var message in messages) {
+    for (final message in messages) {
       if (message.recipientId == _auth.currentUser?.uid && !message.read) {
         _chatService.markAsRead(message.id);
       }
@@ -78,230 +79,246 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.recipientName),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        centerTitle: false,
-        elevation: 2,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.primary(context)),
-          onPressed: () => Navigator.pop(context),
+      appBar: AppBar(title: Text(widget.recipientName)),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.06),
+              colorScheme.surface,
+            ],
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          // Messages display
-          Expanded(
-            child: StreamBuilder<List<MessageModel>>(
-              stream: _chatService.getMessages(widget.recipientId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary(context),
-                    ),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-
-                final messages = snapshot.data ?? [];
-
-                // Show notification when new message arrives from the other user
-                if (!_isFirstLoad && messages.length > _previousMessageCount) {
-                  final newMessages = messages
-                      .skip(_previousMessageCount)
-                      .toList();
-                  for (var msg in newMessages) {
-                    if (msg.senderId == widget.recipientId &&
-                        msg.senderId != _auth.currentUser?.uid) {
-                      // Schedule snack bar to be shown after the current build frame.
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'New message from ${widget.recipientName}: ${msg.text}',
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: StreamBuilder<List<MessageModel>>(
+                      stream: _chatService.getMessages(widget.recipientId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: colorScheme.primary,
                             ),
-                            duration: const Duration(seconds: 3),
-                            backgroundColor: AppColors.primary(context),
-                          ),
-                        );
-                      });
-                    }
-                  }
-                }
+                          );
+                        }
 
-                _previousMessageCount = messages.length;
-                _isFirstLoad = false;
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
 
-                // Mark messages as read when they appear
-                if (messages.isNotEmpty) {
-                  _markMessagesAsRead(messages);
-                }
+                        final messages = snapshot.data ?? [];
 
-                if (messages.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No messages yet. Start the conversation!',
-                      style: TextStyle(color: AppColors.grey(context, 600)),
-                    ),
-                  );
-                }
-
-                // Auto-scroll to bottom when new messages arrive
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (_scrollController.hasClients) {
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                    );
-                  }
-                });
-
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(12.0),
-                  itemCount: _buildCombinedMessageList(messages).length,
-                  itemBuilder: (context, index) {
-                    final item = _buildCombinedMessageList(messages)[index];
-
-                    if (item is String) {
-                      // It's a date separator string
-                      return _buildDateSeparator(DateTime.parse(item));
-                    }
-
-                    // It's a MessageModel
-                    final message = item as MessageModel;
-                    final isCurrentUser =
-                        message.senderId == _auth.currentUser?.uid;
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Align(
-                        alignment: isCurrentUser
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isCurrentUser
-                                ? Theme.of(context).colorScheme.primary
-                                : AppColors.grey(context, 300),
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(18),
-                              topRight: const Radius.circular(18),
-                              bottomLeft: Radius.circular(
-                                isCurrentUser ? 18 : 4,
-                              ),
-                              bottomRight: Radius.circular(
-                                isCurrentUser ? 4 : 18,
-                              ),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.blackWithOpacity(0.1),
-                                blurRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                message.text,
-                                style: TextStyle(
-                                  color: isCurrentUser
-                                      ? AppColors.white
-                                      : AppColors.black87(),
-                                  fontSize: 15,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    _formatTime(message.timestamp),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isCurrentUser
-                                          ? AppColors.white.withOpacity(0.7)
-                                          : AppColors.grey(context, 600),
+                        if (!_isFirstLoad &&
+                            messages.length > _previousMessageCount) {
+                          final newMessages = messages
+                              .skip(_previousMessageCount)
+                              .toList();
+                          for (final msg in newMessages) {
+                            if (msg.senderId == widget.recipientId &&
+                                msg.senderId != _auth.currentUser?.uid) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'New message from ${widget.recipientName}: ${msg.text}',
                                     ),
+                                    duration: const Duration(seconds: 3),
+                                    backgroundColor: colorScheme.primary,
                                   ),
-                                  if (isCurrentUser) ...[
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      message.read
-                                          ? Icons.done_all
-                                          : Icons.done,
-                                      size: 14,
-                                      color: message.read
-                                          ? AppColors.blue300()
-                                          : AppColors.white.withOpacity(0.7),
-                                    ),
-                                  ],
-                                ],
+                                );
+                              });
+                            }
+                          }
+                        }
+
+                        _previousMessageCount = messages.length;
+                        _isFirstLoad = false;
+
+                        if (messages.isNotEmpty) {
+                          _markMessagesAsRead(messages);
+                        }
+
+                        if (messages.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No messages yet. Start the conversation!',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
                               ),
-                            ],
+                            ),
+                          );
+                        }
+
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (_scrollController.hasClients) {
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          }
+                        });
+
+                        final items = _buildCombinedMessageList(messages);
+                        return ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+
+                            if (item is String) {
+                              return _buildDateSeparator(
+                                context: context,
+                                dateTime: DateTime.parse(item),
+                              );
+                            }
+
+                            final message = item as MessageModel;
+                            final isCurrentUser =
+                                message.senderId == _auth.currentUser?.uid;
+                            return _buildMessageBubble(
+                              context: context,
+                              message: message,
+                              isCurrentUser: isCurrentUser,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      border: Border(
+                        top: BorderSide(color: colorScheme.outlineVariant),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _messageController,
+                            minLines: 1,
+                            maxLines: 4,
+                            textInputAction: TextInputAction.newline,
+                            decoration: const InputDecoration(
+                              hintText: 'Type a message...',
+                              prefixIcon: Icon(Icons.chat_bubble_outline),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          // Message input field
-          Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border(
-                top: BorderSide(color: AppColors.grey(context, 300)),
+                        const SizedBox(width: 8),
+                        IconButton.filled(
+                          onPressed: _sendMessage,
+                          icon: const Icon(Icons.send_rounded),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                FloatingActionButton(
-                  mini: true,
-                  backgroundColor: AppColors.primary(context),
-                  onPressed: _sendMessage,
-                  child: Icon(Icons.send, color: AppColors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageBubble({
+    required BuildContext context,
+    required MessageModel message,
+    required bool isCurrentUser,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Align(
+        alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.75,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isCurrentUser
+                  ? colorScheme.primary
+                  : colorScheme.primaryContainer.withValues(alpha: 0.52),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(18),
+                topRight: const Radius.circular(18),
+                bottomLeft: Radius.circular(isCurrentUser ? 18 : 4),
+                bottomRight: Radius.circular(isCurrentUser ? 4 : 18),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 3,
                 ),
               ],
             ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message.text,
+                    style: TextStyle(
+                      color: isCurrentUser
+                          ? colorScheme.onPrimary
+                          : colorScheme.onSurface,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _formatTime(message.timestamp),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isCurrentUser
+                              ? colorScheme.onPrimary.withValues(alpha: 0.72)
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      if (isCurrentUser) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          message.read ? Icons.done_all : Icons.done,
+                          size: 14,
+                          color: message.read
+                              ? colorScheme.tertiary
+                              : colorScheme.onPrimary.withValues(alpha: 0.72),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -312,7 +329,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return '$hour:$minute';
   }
 
-  /// Build a combined list of messages and date separators
   List<dynamic> _buildCombinedMessageList(List<MessageModel> messages) {
     if (messages.isEmpty) return [];
 
@@ -326,11 +342,8 @@ class _ChatScreenState extends State<ChatScreen> {
         message.timestamp.day,
       );
 
-      // Add date separator if date changed
       if (lastDate == null || lastDate != messageDate) {
-        combined.add(
-          messageDate.toString(),
-        ); // Store date as string for separator
+        combined.add(messageDate.toString());
         lastDate = messageDate;
       }
 
@@ -340,7 +353,13 @@ class _ChatScreenState extends State<ChatScreen> {
     return combined;
   }
 
-  Widget _buildDateSeparator(DateTime dateTime) {
+  Widget _buildDateSeparator({
+    required BuildContext context,
+    required DateTime dateTime,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final today = DateTime.now();
     final yesterday = today.subtract(const Duration(days: 1));
     final dateOnly = DateTime(dateTime.year, dateTime.month, dateTime.day);
@@ -362,19 +381,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.grey(context, 300),
+            color: colorScheme.primaryContainer.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             dateLabel,
-            style: TextStyle(
-              color: AppColors.grey(context, 700),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
