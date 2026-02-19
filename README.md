@@ -1,3 +1,5 @@
+@GEOFREY JUMA KANDEA 
+NIT/BIT/2023/2243 
 # ChatApp
 
 A simple chat application built with **Flutter** and **Firebase**
@@ -98,3 +100,8 @@ lib/
 | WILIAM   MVUNGI   | NIT/BIT/2023/2226 | wiliammvungi95-web   |  mvungi    |
 
 
+This is a learning project to understand:
+- Firebase authentication with Flutter
+- Real-time database operations with Firestore
+- Push notifications with Firebase Cloud Messaging
+- State management in Flutter
