@@ -128,7 +128,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'ChatApp',
+          'Chatapp',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -138,7 +138,7 @@ class _SignupScreenState extends State<SignupScreen> {
         backgroundColor: AppColors.primary(context),
         elevation: 8,
         shadowColor: AppColors.primary(context).withOpacity(0.5),
-        centerTitle: true,
+        centerTitle: false,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(16),
@@ -344,12 +344,12 @@ class _SignupScreenState extends State<SignupScreen> {
                             enabled: !_loading,
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
-                              labelStyle: const TextStyle(
-                                color: Color(0xFF1F7EC9),
+                              labelStyle: TextStyle(
+                                color: AppColors.primary(context),
                               ),
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 Icons.lock,
-                                color: Color(0xFF1F7EC9),
+                                color: AppColors.primary(context),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -369,7 +369,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   _showPassword
                                       ? Icons.visibility
                                       : Icons.visibility_off,
-                                  color: const Color(0xFF1F7EC9),
+                                  color: AppColors.primary(context),
                                 ),
                                 onPressed: () {
                                   setState(
