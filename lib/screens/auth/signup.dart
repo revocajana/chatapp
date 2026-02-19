@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
 import '../../services/auth_service.dart';
-import '../../services/notification_service.dart'; // for notification initialization on signup
+import '../../services/notification_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -22,10 +21,10 @@ class _SignupScreenState extends State<SignupScreen> {
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
+
   bool _loading = false;
   bool _showPassword = false;
 
-  /// Validates email format using regex pattern
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -33,12 +32,6 @@ class _SignupScreenState extends State<SignupScreen> {
     return emailRegex.hasMatch(email);
   }
 
-  /// Validates password strength:
-  /// - Minimum 8 characters
-  /// - At least 1 uppercase letter
-  /// - At least 1 lowercase letter
-  /// - At least 1 digit
-  /// - At least 1 special character
   String? _validatePassword(String? password) {
     if (password == null || password.isEmpty) {
       return 'Password is required';
@@ -62,26 +55,24 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() {
+      if (_formKey.currentState != null) _formKey.currentState!.validate();
+    });
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-
     _usernameFocus.dispose();
     _emailFocus.dispose();
     _passwordFocus.dispose();
     _confirmPasswordFocus.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Revalidate confirm password when the password changes
-    _passwordController.addListener(() {
-      if (_formKey.currentState != null) _formKey.currentState!.validate();
-    });
   }
 
   Future<void> _submit() async {
@@ -94,30 +85,25 @@ class _SignupScreenState extends State<SignupScreen> {
         username: _usernameController.text.trim(),
       );
       if (user != null) {
-        // Initialize notifications and request permissions
         try {
           await notificationService.initializeNotifications(user.uid);
-        } catch (_) {
-          // ignore notification errors; still navigate to home
-        }
+        } catch (_) {}
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
       }
     } on Exception catch (e) {
-      if (mounted) {
-        String errorMessage = e.toString();
-        // Extract the message from "Exception: message" format
-        if (errorMessage.startsWith('Exception: ')) {
-          errorMessage = errorMessage.replaceFirst('Exception: ', '');
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: AppColors.danger,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+      if (!mounted) return;
+      String errorMessage = e.toString();
+      if (errorMessage.startsWith('Exception: ')) {
+        errorMessage = errorMessage.replaceFirst('Exception: ', '');
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -125,327 +111,309 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primaryColor = colorScheme.primary;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'ChatApp',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            letterSpacing: 0.5,
-          ),
-        ),
-        backgroundColor: AppColors.primary(context),
-        elevation: 8,
-        shadowColor: AppColors.primary(context).withOpacity(0.5),
-        centerTitle: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(16),
-            bottomRight: Radius.circular(16),
-          ),
-        ),
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: Icon(Icons.arrow_back, color: AppColors.white, size: 28),
-                onPressed: () => Navigator.pop(context),
-              )
-            : null,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.primary(context), AppColors.blue300()],
+      appBar: AppBar(title: const Text('chatapp')),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final bool isDesktop = width >= 1100;
+          final bool isTablet = width >= 700 && width < 1100;
+          final double pageHorizontalPadding = isDesktop
+              ? 56
+              : (isTablet ? 32 : 16);
+          final double formMaxWidth = isDesktop
+              ? 460
+              : (isTablet ? 520 : double.infinity);
+          final double cardPadding = isDesktop ? 36 : (isTablet ? 30 : 22);
+
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  primaryColor.withValues(alpha: 0.08),
+                  colorScheme.surface,
+                ],
+              ),
             ),
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.primary(context).withOpacity(0.1),
-              AppColors.blue300().withOpacity(0.1),
-            ],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Card(
-                  elevation: 8,
-                  shadowColor: AppColors.primary(context).withOpacity(0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 40,
                   ),
-                  color: AppColors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Center(
-                            child: Text(
-                              'Create account',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    color: AppColors.primary(context),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _usernameController,
-                            focusNode: _usernameFocus,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.username],
-                            enabled: !_loading,
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              labelStyle: TextStyle(
-                                color: AppColors.primary(context),
-                              ),
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: AppColors.primary(context),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: AppColors.primary(context),
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: AppColors.grey(context, 224),
-                                ),
-                              ),
-                            ),
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Enter username';
-                              }
-                              if (v.trim().length < 3) {
-                                return 'Username must be at least 3 characters';
-                              }
-                              return null;
-                            },
-                            onFieldSubmitted: (_) => FocusScope.of(
-                              context,
-                            ).requestFocus(_emailFocus),
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _emailController,
-                            focusNode: _emailFocus,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.email],
-                            enabled: !_loading,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              labelStyle: TextStyle(
-                                color: AppColors.primary(context),
-                              ),
-                              prefixIcon: Icon(
-                                Icons.email,
-                                color: AppColors.primary(context),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: AppColors.primary(context),
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: AppColors.grey(context, 224),
-                                ),
-                              ),
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Enter email';
-                              }
-                              if (!_isValidEmail(v.trim())) {
-                                return 'Enter a valid email (e.g., user@example.com)';
-                              }
-                              return null;
-                            },
-                            onFieldSubmitted: (_) => FocusScope.of(
-                              context,
-                            ).requestFocus(_passwordFocus),
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _passwordController,
-                            focusNode: _passwordFocus,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.newPassword],
-                            enabled: !_loading,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              labelStyle: TextStyle(
-                                color: AppColors.primary(context),
-                              ),
-                              prefixIcon: Icon(
-                                Icons.lock,
-                                color: AppColors.primary(context),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF1F7EC9),
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _showPassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: AppColors.primary(context),
-                                ),
-                                onPressed: () {
-                                  setState(
-                                    () => _showPassword = !_showPassword,
-                                  );
-                                },
-                              ),
-                            ),
-                            obscureText: !_showPassword,
-                            validator: _validatePassword,
-                            onFieldSubmitted: (_) => FocusScope.of(
-                              context,
-                            ).requestFocus(_confirmPasswordFocus),
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _confirmPasswordController,
-                            focusNode: _confirmPasswordFocus,
-                            textInputAction: TextInputAction.done,
-                            autofillHints: const [AutofillHints.newPassword],
-                            enabled: !_loading,
-                            decoration: InputDecoration(
-                              labelText: 'Confirm Password',
-                              labelStyle: const TextStyle(
-                                color: Color(0xFF1F7EC9),
-                              ),
-                              prefixIcon: const Icon(
-                                Icons.lock,
-                                color: Color(0xFF1F7EC9),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF1F7EC9),
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _showPassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: const Color(0xFF1F7EC9),
-                                ),
-                                onPressed: () {
-                                  setState(
-                                    () => _showPassword = !_showPassword,
-                                  );
-                                },
-                              ),
-                            ),
-                            obscureText: !_showPassword,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Confirm password is required';
-                              }
-                              if (v != _passwordController.text) {
-                                return 'Passwords do not match';
-                              }
-                              return null;
-                            },
-                            onFieldSubmitted: (_) => _submit(),
-                          ),
-                          const SizedBox(height: 20),
-                          _loading
-                              ? const Center(child: CircularProgressIndicator())
-                              : SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: _submit,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary(
-                                        context,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      elevation: 4,
-                                    ),
-                                    child: Text(
-                                      'Create account',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: pageHorizontalPadding,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1200),
+                        child: isDesktop
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 48),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Start your secure workspace',
+                                            style: theme
+                                                .textTheme
+                                                .headlineMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            'Create your account to chat and collaborate with your team.',
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                                  color: colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: formMaxWidth,
+                                    ),
+                                    child: _buildSignupCard(
+                                      context: context,
+                                      cardPadding: cardPadding,
+                                      isTabletOrDesktop: true,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: formMaxWidth,
                                 ),
-                          const SizedBox(height: 12),
-                          Center(
-                            child: TextButton(
-                              onPressed: () => Navigator.pushReplacementNamed(
-                                context,
-                                '/login',
-                              ),
-                              child: Text(
-                                'Already have an account? Log in',
-                                style: TextStyle(
-                                  color: AppColors.primary(context),
-                                  fontWeight: FontWeight.w600,
+                                child: _buildSignupCard(
+                                  context: context,
+                                  cardPadding: cardPadding,
+                                  isTabletOrDesktop: isTablet,
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ),
                 ),
               ),
             ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSignupCard({
+    required BuildContext context,
+    required double cardPadding,
+    required bool isTabletOrDesktop,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primaryColor = colorScheme.primary;
+
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(cardPadding),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: isTabletOrDesktop ? 82 : 72,
+                height: isTabletOrDesktop ? 82 : 72,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: primaryColor.withValues(alpha: 0.12),
+                ),
+                child: Icon(
+                  Icons.person_add_alt_1_rounded,
+                  size: isTabletOrDesktop ? 38 : 34,
+                  color: primaryColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Create account',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Sign up to get started',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _usernameController,
+                focusNode: _usernameFocus,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.username],
+                enabled: !_loading,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                  hintText: 'Your username',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Username is required';
+                  }
+                  if (v.trim().length < 3) {
+                    return 'Username must be at least 3 characters';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_emailFocus),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _emailController,
+                focusNode: _emailFocus,
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [AutofillHints.email],
+                enabled: !_loading,
+                decoration: const InputDecoration(
+                  labelText: 'Email address',
+                  hintText: 'you@example.com',
+                  prefixIcon: Icon(Icons.email_outlined),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Email is required';
+                  }
+                  if (!_isValidEmail(v.trim())) {
+                    return 'Enter a valid email address';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_passwordFocus),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _passwordController,
+                focusNode: _passwordFocus,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.newPassword],
+                enabled: !_loading,
+                obscureText: !_showPassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  hintText: 'Create a strong password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _showPassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() => _showPassword = !_showPassword);
+                    },
+                  ),
+                ),
+                validator: _validatePassword,
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_confirmPasswordFocus),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _confirmPasswordController,
+                focusNode: _confirmPasswordFocus,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.newPassword],
+                enabled: !_loading,
+                obscureText: !_showPassword,
+                decoration: InputDecoration(
+                  labelText: 'Confirm password',
+                  hintText: 'Re-enter your password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _showPassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() => _showPassword = !_showPassword);
+                    },
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Confirm password is required';
+                  }
+                  if (v != _passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _loading ? null : _submit,
+                  child: _loading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Create Account'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    'Already have an account? ',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.pushReplacementNamed(context, '/login'),
+                    child: const Text('Sign In'),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

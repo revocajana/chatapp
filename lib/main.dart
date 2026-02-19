@@ -20,12 +20,49 @@ class ChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.seedColor,
+      brightness: Brightness.light,
+    );
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'chatapp.group7.bit',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.seedColor),
+        colorScheme: colorScheme,
         useMaterial3: true,
+        scaffoldBackgroundColor: colorScheme.surface,
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          centerTitle: false,
+          backgroundColor: colorScheme.surface,
+          foregroundColor: colorScheme.onSurface,
+        ),
+        cardTheme: CardThemeData(
+          elevation: 10,
+          shadowColor: colorScheme.primary.withValues(alpha: 0.12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: colorScheme.surface,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: colorScheme.outlineVariant),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(52),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
       ),
       home: const SplashScreen(),
       routes: {
@@ -43,13 +80,27 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ChatApp'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: const [LogoutButton()],
       ),
-      body: const UsersScreen(), // Show users list on home screen
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.06),
+              colorScheme.surface,
+            ],
+          ),
+        ),
+        child: const UsersScreen(),
+      ),
     );
   }
 }

@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final primaryColor = colorScheme.primary;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('chatapp'), elevation: 0),
+      appBar: AppBar(title: const Text('Chat Application'), elevation: 0),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -94,7 +94,10 @@ class _LoginScreenState extends State<LoginScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [primaryColor.withOpacity(0.08), colorScheme.surface],
+                colors: [
+                  primaryColor.withValues(alpha: 0.08),
+                  colorScheme.surface,
+                ],
               ),
             ),
             child: SafeArea(
@@ -122,11 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        children: [
-                                          
-                                          const SizedBox(height: 12),
-                                          
-                                        ],
+                                        children: [const SizedBox(height: 12)],
                                       ),
                                     ),
                                   ),
@@ -175,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Card(
       elevation: 10,
-      shadowColor: primaryColor.withOpacity(0.12),
+      shadowColor: primaryColor.withValues(alpha: 0.12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
         padding: EdgeInsets.all(cardPadding),
@@ -189,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: isTabletOrDesktop ? 82 : 72,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: primaryColor.withOpacity(0.12),
+                  color: primaryColor.withValues(alpha: 0.12),
                 ),
                 child: Icon(
                   Icons.lock_outline_rounded,
@@ -206,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Sign in to continue',
+                'Login to continue',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -217,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email address',
-                  hintText: 'you@example.com',
+                  hintText: 'you@gmail.com',
                   prefixIcon: const Icon(Icons.email_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -232,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return 'Email is required';
                   }
                   if (!_isValidEmail(v.trim())) {
-                    return 'Enter a valid email address';
+                    return 'Required a valid email address';
                   }
                   return null;
                 },
@@ -302,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account? ",
+                    "I don't have an account? ",
                     style: theme.textTheme.bodyMedium,
                   ),
                   TextButton(
