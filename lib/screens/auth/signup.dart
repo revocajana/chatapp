@@ -180,7 +180,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                           ),
                                           const SizedBox(height: 12),
                                           Text(
-                                            'Create your account to chat and collaborate with your team.',
+                                            'You can create an account to chat and collaborate with your team.',
                                             style: theme.textTheme.titleMedium
                                                 ?.copyWith(
                                                   color: colorScheme
@@ -257,7 +257,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Create account',
+                'Create your account',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -303,7 +303,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 enabled: !_loading,
                 decoration: const InputDecoration(
                   labelText: 'Email address',
-                  hintText: 'you@example.com',
+                  hintText: 'you@gmail.com',
                   prefixIcon: Icon(Icons.email_outlined),
                 ),
                 validator: (v) {
@@ -311,7 +311,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     return 'Email is required';
                   }
                   if (!_isValidEmail(v.trim())) {
-                    return 'Enter a valid email address';
+                    return 'Required a valid email address';
                   }
                   return null;
                 },
@@ -373,7 +373,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     return 'Confirm password is required';
                   }
                   if (v != _passwordController.text) {
-                    return 'Passwords do not match';
+                    return 'Passwords does not match';
                   }
                   return null;
                 },

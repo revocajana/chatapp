@@ -109,21 +109,33 @@ class _UsersScreenState extends State<UsersScreen> {
             final user = users[index];
             return Card(
               margin: const EdgeInsets.only(bottom: 10),
+              color: colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: BorderSide(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 14,
                   vertical: 4,
                 ),
                 leading: CircleAvatar(
-                  backgroundColor: colorScheme.primary.withValues(alpha: 0.14),
-                  foregroundColor: colorScheme.primary,
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  foregroundColor: colorScheme.onSurface,
                   child: Text(
                     (user.displayName ?? user.email)
                         .substring(0, 1)
                         .toUpperCase(),
                   ),
                 ),
-                title: Text(user.displayName ?? 'User'),
+                title: Text(
+                  user.displayName ?? 'User',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 subtitle: StreamBuilder<MessageModel?>(
                   stream: chatService.lastMessageStream(user.uid),
                   builder: (context, snap) {
@@ -148,6 +160,10 @@ class _UsersScreenState extends State<UsersScreen> {
                       overflow: TextOverflow.ellipsis,
                     );
                   },
+                ),
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 onTap: () {
                   Navigator.push(
