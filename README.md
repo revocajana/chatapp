@@ -1,6 +1,4 @@
-@GEOFREY JUMA KANDEA 
-NIT/BIT/2023/2243 
-# ChatApp
+ # ChatApp
 
 A simple chat application built with **Flutter** and **Firebase**
 ## Overview
